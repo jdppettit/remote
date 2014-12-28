@@ -7,31 +7,67 @@
     <script type="text/javascript"
       src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDiB1ChDrxSE9WIOhBmQIlnnlw2CfLX1Dc">
     </script>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
     <script type="text/javascript">
-	var myLatlng = new google.maps.LatLng(-25.363882,131.044922);
-      function initialize() {
-        var mapOptions = {
-          zoom: 8,
-	 center: myLatlng
-        };
-	
-        var map = new google.maps.Map(document.getElementById('map-canvas'),
-            mapOptions);
+	var myLatlng = new google.maps.LatLng(0,0);
+	var map;	
+	function initialize() {
+		geocoder = new google.maps.Geocoder();
+		var mapOptions = {
+			zoom: 1,
+			center: myLatlng
+		};
+		
+		map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+	}
 
-	          var marker = new google.maps.Marker({
-      position: myLatlng,
-      map: map,
-      title: 'Hello World!'
-  });
+	google.maps.event.addDomListener(window, 'load', initialize);
+	refreshMap();
 
-      }
-      google.maps.event.addDomListener(window, 'load', initialize);
+	function addRecord() {
+		var city = document.getElementById("city").value
+		var longitude = ""
+		var latitude = ""
+		geocoder.geocode( {'address':city}, function(results, status) {
+			if (status == google.maps.GeocoderStatus.OK) {
+				longitude = results[0]['geometry']['location']['D']
+				latitude = results[0]['geometry']['location']['k']
+				$.post('/add',
+					{
+						'name' : document.getElementById("name").value,
+						'longitude': longitude,
+						'latitude' : latitude
+					});
+				refreshMap();
+			}
+		});
+	}
 
+	function refreshMap() {
+		$.get('/get', function(data) {
+			console.log(data);
+			console.log(data['records'][0]);
+			for(index = 0; index < data['records'].length; ++index ) {
+				var marker_loc = new google.maps.LatLng(data['records'][index]['latitude'], data['records'][index]['longitude'])
+				console.log(data['records'][index]['latitude']);
+				var marker = new google.maps.Marker({
+					position: marker_loc,
+					map: map,
+					title: data['records'][index]['name']
+				});
+			};	
+		});
+	}
 
     </script>
   </head>
   <body>
-<div id="map-canvas"></div>
+<div id="map-canvas" style="height: 500px; width: 500px;"></div><br/>
+City/State/Country: <input type="text" name="city" id="city"/><br/>
+Name: <input type="text" name="name" id="name"/><br/>
+<button id="doit" onClick="addRecord()">Add Pin</button>
+<br/>
+We are reporting a total of {{ reporting }} people here.
   </body>
 </html>
 

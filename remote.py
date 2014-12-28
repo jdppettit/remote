@@ -31,17 +31,35 @@ class Record(db.Model):
 		self.latitude = latitude
 		self.name = name
 
+db.create_all()
+db.session.commit()
+
 @app.route('/')
 def index():
-	return render_template("index.html")
+	number = Record.query.all()
+	reporting = len(number)
+	return render_template("index.html", reporting=reporting)
 
 @app.route('/add', methods=['POST'])
 def add():
-	return "poop"
+	new = Record(request.form['longitude'], request.form['latitude'], request.form['name'])
+	db.session.add(new)
+	db.session.commit()
+	return "202 - OK"
 
 @app.route('/get')
 def get():
-	return "list of the things"
+	records = Record.query.all() 
+	data = []
+	for record in records:
+		d = {
+			'id' : record.id,
+			'name': record.name,
+			'longitude' : record.longitude,
+			'latitude' : record.latitude
+		}
+		data.append(d)
+	return jsonify(records=data)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10050, debug=True)

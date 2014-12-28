@@ -1,16 +1,8 @@
 from flask import *
 from flask.ext.sqlalchemy import SQLAlchemy
-from flaskext.yamlconfig import AppYAMLConfig
 
 from os import path
-import yaml
 from config import *
-
-def load_yaml(app, filename):
-    filename = path.join(app.root_path, filename)
-    with open(filename) as f:
-        obj = yaml.load(f)
-    return app.config.from_object(obj)
 
 app = Flask(__name__)
 

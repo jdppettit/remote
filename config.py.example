@@ -1,0 +1,4 @@
+username = DB Username
+password = DB Password
+database = DB Name
+hostname = DB IP or Hostname

@@ -1,5 +1,3 @@
 --allow-external mysql-python-connector
 Flask==0.10.1
 Flask-SQLAlchemy==1.0
-
-
